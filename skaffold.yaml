@@ -1,0 +1,24 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: stubhub-ticketing
+build:
+  local:
+    concurrency: 1
+    tryImportMissing: false
+    useDockerCLI: false
+    push: false
+  artifacts:
+    - image: wakidur/ticketing-auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+manifests:
+  rawYaml:
+    - infra/k8s/auth-depl.yaml
+    - infra/k8s/auth-mongo-depl.yaml
+    - infra/k8s/ingress-service.yaml
