@@ -14,15 +14,18 @@ import { errorHandler } from './middlewares/error-middleware';
 import authRoutes from './routes/auth-routes';
 
 {/* ↓↓↓ CORS Settings */}
-app.use(cors());
+app.use(cors({
+  credentials: true,
+}));
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+
 {/* ↓↓↓ Route Handler */}
 app.use(authRoutes);
 
 app.all('*', async (req, res) => {
+  console.log("Incomming ")
+  console.log(req.body)
+  console.log(req.url)
   throw new NotFoundError();
 });
 
@@ -32,9 +35,9 @@ app.use(errorHandler);
 const start = async () => {
   try {
     {/* ↓↓↓ Mongoose Connect For Local Kubernetes*/}
-    // await mongoose.connect('mongodb://auth-mongo-clusterip-service:27017/auth');
+     await mongoose.connect('mongodb://auth-mongo-clusterip-service:27017/auth');
     {/* ↓↓↓ Mongoose Connect For Local Environment*/}
-    await mongoose.connect('mongodb://localhost:27017/stubhub-ticketing-auth');
+    // await mongoose.connect('mongodb://localhost:27017/stubhub-ticketing-auth');
     console.log('Connected to MongoDb successful');
   } catch (error) {
     console.error(error);
