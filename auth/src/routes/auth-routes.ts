@@ -21,7 +21,9 @@ const authentication = (router: express.Router) => {
 router.post(
   '/register',
   [
-    body('email').isEmail().withMessage('Email must be valid'),
+    body('email')
+      .isEmail()
+      .withMessage('Email must be valid'),
     body('password')
       .trim()
       .isLength({ min: 4, max: 20 })

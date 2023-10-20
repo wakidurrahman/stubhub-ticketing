@@ -126,6 +126,9 @@ UserSchema.statics.build = (attrs: UserAttrs) => {
   return new UserModel(attrs);
 };
 
-const UserModel = mongoose.model<UserDocument, UserModelInterface>('User', UserSchema);
+const UserModel = mongoose.model<UserDocument, UserModelInterface>(
+  'User',
+  UserSchema
+);
 
 export default UserModel;
