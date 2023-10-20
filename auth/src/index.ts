@@ -1,5 +1,5 @@
+import app from '@/app';
 import mongoose from 'mongoose';
-import app from './app';
 const port = process.env.PORT;
 
 const start = async () => {

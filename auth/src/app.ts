@@ -5,9 +5,9 @@ import dotenv from 'dotenv';
 import express, { Express, urlencoded } from 'express';
 
 
-import { NotFoundError } from './errors/not-found-error';
-import { errorHandler } from './middlewares/error-middleware';
-import authRoutes from './routes/auth-routes';
+import { NotFoundError } from '@/errors/not-found-error';
+import { errorHandler } from '@/middlewares/error-middleware';
+import authRoutes from '@/routes/auth-routes';
 
 const app: Express = express();
 app.set('trust proxy', true);
@@ -30,10 +30,10 @@ app.use(
 {
   /* ↓↓↓ Route Handler */
 }
-app.use(authRoutes);
+app.use('/api/v1/auth', authRoutes());
 
-app.all('*', async (req, res) => {
-  throw new NotFoundError();
+app.all('*', async (req, res, next) => {
+  next(new NotFoundError());
 });
 
 app.use(errorHandler);
