@@ -1,6 +1,6 @@
+import { AuthCustomErrorHandler } from '@/errors/auth-custom-error-handler';
+import Message from '@/utils/message';
 import { NextFunction, Request, Response } from 'express';
-import { AuthCustomErrorHandler } from '../errors/auth-custom-error-handler';
-import Message from '../utils/message';
 
 
 const sendErrorDev = (err: { statusCode: any; status: any; message: any; stack: any; }, res: Response<any, Record<string, any>>) => {

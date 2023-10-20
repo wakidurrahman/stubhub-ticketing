@@ -1,7 +1,7 @@
-import { User, UserAttrs } from '../models/user-model';
+import UserModel, { UserAttrs } from "../models/users-model";
 
 export function createUserService({ email, password }: UserAttrs) {
-  const user = User.build({ email, password });
+  const user = UserModel.build({ email, password });
 
   return new Promise((resolve, reject) => {
     user

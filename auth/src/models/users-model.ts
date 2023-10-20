@@ -4,16 +4,16 @@
 import moment from 'moment';
 import mongoose from 'mongoose';
 
-import { PasswordService } from '../services/password-sevice';
-// An interface that describes the properties that are required to create a new User
+import { PasswordService } from '@/services/password-service';
+
+// An interface that describes the properties that are requried to create a new User
 export interface UserAttrs {
   email: string;
   password: string;
 }
 
-// An interface that describes the properties
-// that a User Model has
-interface UserModel extends mongoose.Model<UserDocument> {
+// An interface that describes the properties that a User Model has
+interface UserModelInterface extends mongoose.Model<UserDocument> {
   build(attrs: UserAttrs): UserDocument;
 }
 
@@ -28,13 +28,6 @@ interface UserDocument extends mongoose.Document {
   phone?: string;
   createdAt?: string;
   updatedAt?: string;
-}
-
-// An interface that describes the properties that a User Model has
-
-interface UserModel extends mongoose.Model<UserDocument> {
-  email: string;
-  password: string;
 }
 
 const UserSchema = new mongoose.Schema(
@@ -88,7 +81,15 @@ const UserSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.password;
+        delete ret.__v;
+      },
+    },
     toObject: { virtuals: true },
   }
 );
@@ -110,18 +111,21 @@ UserSchema.virtual('fullName').get(function () {
 });
 
 UserSchema.virtual('createDate').get(function () {
-  return this.createdAt ? moment(this.get("createdAt")).format('YYYY-MM-DD') : '';
+  return this.createdAt
+    ? moment(this.get('createdAt')).format('YYYY-MM-DD')
+    : '';
 });
 
 UserSchema.virtual('updateDate').get(function () {
-  console.log(this.updatedAt);
-  return this.updatedAt ? moment(this.get("updatedAt")).format('YYYY-MM-DD') : '';
+  return this.updatedAt
+    ? moment(this.get('updatedAt')).format('YYYY-MM-DD')
+    : '';
 });
 
 UserSchema.statics.build = (attrs: UserAttrs) => {
-  return new User(attrs);
+  return new UserModel(attrs);
 };
 
-const User = mongoose.model<UserDocument, UserModel>('User', UserSchema);
+const UserModel = mongoose.model<UserDocument, UserModelInterface>('User', UserSchema);
 
-export { User };
+export default UserModel;
