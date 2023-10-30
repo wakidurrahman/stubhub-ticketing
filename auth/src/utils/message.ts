@@ -11,6 +11,7 @@ export default Object.freeze({
   SOME_THING_MISSING: 'Missing Something into your provided input',
 
   // Common Message
+  INVALID_CREDENTIALS: 'Invalid credentials',
   IS_NOT_FOUND_WITH_ID_OF: 'is not found with id of',
   THIS_IN_VALID_MONGODB_ID: 'This is not valid mongodb _id',
   REQUEST_BODY_IS_EMPTY: 'Request body is empty!',

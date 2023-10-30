@@ -4,8 +4,33 @@ import jwt from 'jsonwebtoken';
 
 import { createUser, getUserByEmail } from '@/db/users-query';
 import { BadRequestError } from '@/errors/bad-request-error';
+import { ErrorResponse } from '@/errors/error-response';
 import { RequestValidationError } from '@/errors/request-validation-error';
+import { UserDocument } from '@/models/users-model';
+import { PasswordService } from '@/services/password-service';
 import Message from '@/utils/message';
+
+function sendTokenResponse(
+  user: UserDocument & { _id: import('mongoose').Types.ObjectId },
+  req: Request
+) {
+  // step 6: Generate JWT
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+    },
+    process.env.JWT_KEY!,
+    {
+      expiresIn: process.env.JWT_EXP!,
+    }
+  );
+
+  // step 7: Store it on session object
+  req.session = {
+    jwt: token,
+  };
+}
 
 /**
  * register Controller
@@ -50,29 +75,15 @@ export const register = async (
       password,
     });
 
-    // step 6: Generate JWT
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-      },
-      process.env.JWT_KEY!,
-      {
-        expiresIn: process.env.JWT_EXP!,
-      }
-    );
-
-    // step 7: Store it on session object
-    req.session = {
-      jwt: token
-    }
-    // step 8: Response After user implement
+    //step 5:  Generate JWT and Store it on session object
+    sendTokenResponse(user, req);
+    // step 6: Response After user implement
 
     return res
-      .status(201)
+      .status(200)
       .json({
         status: 'success',
-        message: Message.CREATE_SUCCESSFUL,
+        message: 'User login successful!',
         data: user,
       })
       .end();
@@ -82,16 +93,68 @@ export const register = async (
   }
 };
 
-export const singUpUser = async (
+export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log(req.body);
-  res.status(200).json({
-    status: 'Ok',
-  });
+  try {
+    // step 1: Check request  body
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new BadRequestError(`${Message.REQUEST_BODY_IS_EMPTY}`));
+    }
+
+    // step 2: Find login user by email
+    const existingUser = await getUserByEmail(email);
+    if (!existingUser) {
+      return next(new BadRequestError(`${Message.INVALID_CREDENTIALS}`));
+    }
+
+    console.log(existingUser.password);
+
+    // step 3: Match existing user Password
+    const passwordsMatch = await PasswordService.compare(
+      existingUser.password,
+      password
+    );
+    if (!passwordsMatch) {
+      return next(new ErrorResponse(`${Message.INVALID_CREDENTIALS}`, 403));
+    }
+
+    // step 4: Generate JWT and Store it on session object
+    sendTokenResponse(existingUser, req);
+
+    return res
+      .status(200)
+      .json({
+        status: 'success',
+        message: Message.CREATE_SUCCESSFUL,
+        data: existingUser,
+      })
+      .end();
+  } catch (error) {
+    return next(new BadRequestError(`${Message.SOME_THING_MISSING}`));
+  }
 };
+
+
+  /**
+   * @desc      signout from this platform.
+   * @route     POST /api/v1/auth/signout
+   * @access    Public
+   */
+  export const logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+    } catch (error) {
+      return next(new BadRequestError(`${Message.SOME_THING_MISSING}`));
+    }
+  };
+
 /**
  * Fetch Particular user
  * GET /posts
