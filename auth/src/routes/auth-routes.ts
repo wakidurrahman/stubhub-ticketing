@@ -1,14 +1,7 @@
 // https://zenn.dev/himorishige/articles/5084aab24c9f35
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 
-import {
-  getParticularUser,
-  login,
-  register,
-} from '@/controllers/auth-controller';
-import UserModel from '@/models/users-model';
-import { findAllQuery } from '@/services/auth-service';
-import Message from '@/utils/message';
+import { login, register, signout } from '@/controllers/auth-controller';
 import { body } from 'express-validator';
 
 export default (router: express.Router) => {
@@ -20,7 +13,7 @@ export default (router: express.Router) => {
    */
 
   router.post(
-    '/register',
+    '/auth/register',
     [
       body('email').isEmail().withMessage('Email must be valid'),
       body('password')
@@ -37,7 +30,7 @@ export default (router: express.Router) => {
    * @access    Public
    */
   router.post(
-    '/login',
+    '/auth/login',
     [
       body('email').isEmail().withMessage('Email must be valid'),
       body('password')
@@ -52,37 +45,5 @@ export default (router: express.Router) => {
    * @route     POST /api/v1/auth/signout
    * @access    Public
    */
-  router.post(
-    '/signout',
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { email, password } = req.body;
-      console.log(req.body);
-      res.send('Hi there!');
-    }
-  );
-
-  /**
-   *
-   * @desc     Get all users.
-   * @route     GET /api/v1/auth/users
-   * @access    Public
-   */
-  router.get(
-    '/users',
-    async (req: Request, res: Response, next: NextFunction) => {
-      const users = await findAllQuery(UserModel, {});
-      console.log(users);
-      res.status(200).json({
-        status: 'success',
-        message: Message.DATA_FETCH,
-        data: users,
-      });
-    }
-  );
-  /**
-   * @desc      Register/SignUp user, Create a new local account.
-   * @route     GET /api/v1/auth/currentuser
-   * @access    Public
-   */
-  router.route('/currentuser').get(getParticularUser);
+  router.post('/auth/signout', signout);
 };

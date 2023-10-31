@@ -27,7 +27,7 @@ app.use(
 {
   /* ↓↓↓ Route Handler */
 }
-app.use('/api/v1/auth', routes());
+app.use('/api/v1', routes());
 
 // Handle unknown url
 
