@@ -25,6 +25,7 @@ function sendTokenResponse(
       expiresIn: process.env.JWT_EXP!,
     }
   );
+  console.log(token)
 
   // step 7: Store it on session object
   req.session = {
@@ -105,13 +106,13 @@ export const login = async (
       return next(new BadRequestError(`${Message.REQUEST_BODY_IS_EMPTY}`));
     }
 
+    console.log(email);
+
     // step 2: Find login user by email
-    const existingUser = await getUserByEmail(email);
+    const existingUser = await getUserByEmail(email).select('+password');
     if (!existingUser) {
       return next(new BadRequestError(`${Message.INVALID_CREDENTIALS}`));
     }
-
-    console.log(existingUser.password);
 
     // step 3: Match existing user Password
     const passwordsMatch = await PasswordService.compare(
@@ -138,33 +139,22 @@ export const login = async (
   }
 };
 
-
-  /**
-   * @desc      signout from this platform.
-   * @route     POST /api/v1/auth/signout
-   * @access    Public
-   */
-  export const logout = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-    } catch (error) {
-      return next(new BadRequestError(`${Message.SOME_THING_MISSING}`));
-    }
-  };
-
 /**
- * Fetch Particular user
- * GET /posts
+ * @desc      signout from this platform.
+ * @route     POST /api/v1/auth/signout
+ * @access    Public
  */
-export const getParticularUser = async (
+export const signout = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  res.status(201).json({
-    status: 'Ok',
-  });
+  try {
+    req.session = null;
+
+    res.send({});
+  } catch (error) {
+    return next(new BadRequestError(`${Message.SOME_THING_MISSING}`));
+  }
 };
+
